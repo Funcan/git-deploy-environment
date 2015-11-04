@@ -1,5 +1,27 @@
 #!/bin/bash
 
+MISSING_STUFF=false
+
+if [ -z "${APP}" ]; then
+	>&2 echo "No APP specified"
+	MISSING_STUFF=true
+fi
+if [ -z "${ENVIRONMENT}" ]; then
+	>&2 echo "No ENVIRONMENT specified"
+	MISSING_STUFF=true
+fi
+
+if [ ! -f keys/private.key ]; then
+	>&2 echo "No private key found, unable to decrypts"
+fi
+if [ ! -f keys/public.key ]; then
+	>&2 echo "No public key found, unable to verify signatures"
+fi
+
+if [ "${MISSING_STUFF}" == "true" ]; then
+	exit 1
+fi
+
 # Import GPG keys
 gpg2 --import keys/private.key 2>/dev/null
 gpg2 --import keys/public.key 2>/dev/null

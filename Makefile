@@ -1,4 +1,5 @@
 NAME=git-deploy-environment
+HUB_NAME=pebbletech/git-deploy-environment
 
 TEST_KEY=testing
 
@@ -77,3 +78,8 @@ clean:
 	-docker kill $(NAME)-deploy
 	-docker rm $(NAME)-etcd
 	-docker rm $(NAME)-deploy
+
+deploy:
+	docker build -t $(HUB_NAME) .
+	docker push $(HUB_NAME)
+
