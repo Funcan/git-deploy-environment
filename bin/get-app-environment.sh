@@ -11,20 +11,42 @@ if [ -z "${ENVIRONMENT}" ]; then
 	MISSING_STUFF=true
 fi
 
-if [ ! -f keys/private.key ]; then
-	>&2 echo "No private key found, unable to decrypts"
-fi
-if [ ! -f keys/public.key ]; then
-	>&2 echo "No public key found, unable to verify signatures"
+if [ -z "${S3LOCATION}" ]; then
+	>&2 echo "No S3LOCATION specified, using local filesystem to fetch keys"
+
+	if [ ! -f keys/private.key ]; then
+		>&2 echo "No private key found, unable to decrypts"
+	fi
+	if [ ! -f keys/public.key ]; then
+		>&2 echo "No public key found, unable to verify signatures"
+	fi
+else
+	>&2 echo "S3LOCATION specified, fetching keys from s3"
+
+	mkdir s3keys
+	/usr/bin/aws s3 sync s3keys/ s3://${S3LOCATION}
+
+	if [ ! -f s3keys/private.key ]; then
+		>&2 echo "No (s3) private key found, unable to decrypts"
+	fi
+	if [ ! -f s3keys/public.key ]; then
+		>&2 echo "No (s3) public key found, unable to verify signatures"
+	fi
 fi
 
 if [ "${MISSING_STUFF}" == "true" ]; then
 	exit 1
 fi
 
-# Import GPG keys
-gpg2 --import keys/private.key 2>/dev/null
-gpg2 --import keys/public.key 2>/dev/null
+if [ -z "${S3LOCATION}" ]; then
+	# Import GPG keys
+	gpg2 --import keys/private.key 2>/dev/null
+	gpg2 --import keys/public.key 2>/dev/null
+else
+	# Import GPG keys
+	gpg2 --import s3keys/private.key 2>/dev/null
+	gpg2 --import s3keys/public.key 2>/dev/null
+fi
 
 for KEY in $(etcdctl ls /env/${APP}/${ENVIRONMENT} | sort); do
 	BASE_KEY=$(basename ${KEY})

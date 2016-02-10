@@ -2,6 +2,7 @@ FROM debian:jessie
 
 RUN apt-get update && \
     apt-get install -y \
+        python-pip \
         curl \
         gnupg2 && \
     apt-get clean && \
@@ -9,6 +10,7 @@ RUN apt-get update && \
 
 ENV ETCD_VERSION 2.1.3
 
+RUN pip install awscli
 RUN curl -L https://github.com/coreos/etcd/releases/download/v${ETCD_VERSION}/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz -o /tmp/etcd.tar.gz && \
     cd tmp && \
     tar -xzf /tmp/etcd.tar.gz && \
