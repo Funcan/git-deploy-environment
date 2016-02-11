@@ -24,7 +24,7 @@ else
 	>&2 echo "S3LOCATION specified, fetching keys from s3"
 
 	mkdir s3keys
-	/usr/bin/aws s3 sync s3keys/ s3://${S3LOCATION}
+	aws s3 sync s3keys/ s3://${S3LOCATION}
 
 	if [ ! -f s3keys/private.key ]; then
 		>&2 echo "No (s3) private key found, unable to decrypts"
