@@ -23,9 +23,9 @@ if [ -z "${S3LOCATION}" ]; then
 else
 	>&2 echo "S3LOCATION specified, fetching keys from s3"
 
-	mkdir s3keys
-	aws s3 cp s3://${S3LOCATION}/public.key s3keys/public.key
-	aws s3 cp s3://${S3LOCATION}/private.key s3keys/private.key
+	>&2 mkdir -p s3keys
+	>&2 aws s3 cp s3://${S3LOCATION}/public.key s3keys/public.key
+	>&2 aws s3 cp s3://${S3LOCATION}/private.key s3keys/private.key
 
 	if [ ! -f s3keys/private.key ]; then
 		>&2 echo "No (s3) private key found, unable to decrypts"
